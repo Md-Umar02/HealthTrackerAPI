@@ -1,0 +1,79 @@
+﻿using Azure;
+using HealthTracker.Application.ApplicationConstants;
+using HealthTracker.Application.Common;
+using HealthTracker.Application.DTO.Auth;
+using HealthTracker.Application.DTO.User;
+using HealthTracker.Application.Exceptions;
+using HealthTracker.Application.Services;
+using HealthTracker.Application.Services.Interface;
+using Microsoft.AspNetCore.Mvc;
+using System.Net;
+
+namespace HealthTracker.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : Controller
+    {
+        private readonly IAuthService _authService;
+        private readonly APIResponse _response;
+        public AuthController(IAuthService authService)
+        {
+            _authService = authService;
+            _response = new APIResponse();
+        }
+
+        [HttpPost]
+        [Route("Register")]
+        public async Task<ActionResult<APIResponse>> Register(AuthRegisterDto request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _response.AddError(ModelState.ToString());
+                    _response.AddWarning(CommonMessage.RegistrationFailed);
+                    return _response;
+                }
+                var user = await _authService.RegisterAsync(request);
+                _response.StatusCode = HttpStatusCode.Created;
+                _response.IsSuccess = true;
+                _response.DisplayMessage = CommonMessage.RegistrationSuccess;
+                _response.Result = user;
+            }
+            catch (Exception)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.DisplayMessage = CommonMessage.RegistrationFailed;
+                _response.AddError(CommonMessage.SystemError);
+            }
+            return (_response);
+        }
+        [HttpPost]
+        [Route("Login")]
+        public async Task<ActionResult<APIResponse>> Login(AuthRequestDto request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.AddWarning(CommonMessage.LoginFailed);
+                    return _response;
+                }
+                var user = await _authService.LoginAsync(request);
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.IsSuccess = true;
+                _response.DisplayMessage = CommonMessage.LoginSuccess;
+                _response.Result = user;
+            }
+            catch (Exception)
+            {
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                _response.DisplayMessage = CommonMessage.LoginFailed;
+                _response.AddError(CommonMessage.SystemError);
+            }
+            return (_response);
+        }
+    }
+}

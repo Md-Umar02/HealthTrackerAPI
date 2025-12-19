@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="HealthTracker.API/HealthTracker.API.csproj" />
+    <Project Path="HealthTracker.Application/HealthTracker.Application.csproj" />
+    <Project Path="HealthTracker.Domain/HealthTracker.Domain.csproj" />
+    <Project Path="HealthTracker.Infrastructure/HealthTracker.Infrastructure.csproj" />
+  </Folder>
+</Solution>
